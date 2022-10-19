@@ -24,12 +24,13 @@ router.post(
   ],
   async (req, res) => {
     try {
+      console.log(req.body);
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return res.status(500).json({ status: -1, errors: errors.array()});
+        return res.status(500).json({ status: -1, errors: errors.array() });
       } else {
         const emailExist = await User.findOne({ email: req.body.email });
-        if (emailExist) return res.status(404).json({status: 1});
+        if (emailExist) return res.status(404).json({ status: 1 });
 
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(req.body.password, salt);
@@ -42,7 +43,7 @@ router.post(
           age: req.body.age,
         });
         const savedUser = await user.save();
-        res.json({status: 0,data: savedUser});
+        res.json({ status: 0, data: savedUser });
       }
     } catch (err) {
       console.log(err);
@@ -64,21 +65,36 @@ router.post(
         return res.status(404).json({ status: -1, errors: errors.array() });
 
       const user = await User.findOne({ email: req.body.email });
-      if (!user) return res.status(400).json({status: 1});
+      if (!user) return res.status(400).json({ status: 1 });
       const passCorrect = await bcrypt.compare(
         req.body.password,
         user.password
       );
 
-      if (!passCorrect) return res.status(400).json({status: 1});
+      if (!passCorrect) return res.status(400).json({ status: 1 });
 
       const token = JWT.sign({ _id: user._id }, JWT_SECRET);
-      res.header("auth-token", token).json({ status: 0, Token: token });
+      res
+        .header("auth-token", token)
+        .json({
+          status: 0,
+          Token: token,
+          User: {
+            firstName: user.firstName,
+            lastName: user.lastName,
+            age: user.age,
+            email: user.email,
+          },
+        });
     } catch (error) {
       console.error(error);
       res.status(400).json({ error: "Internal Server Error" });
     }
   }
 );
+
+router.get("/", (req, res) => {
+  res.send("<h1>Hello</h1>");
+});
 
 module.exports = router;

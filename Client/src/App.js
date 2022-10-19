@@ -4,8 +4,8 @@ import Login from "./components/login";
 function App() {
   return (
     <div className="container my-3">
-      {/*<SignUp />*/}
-      <Login/>
+      {/*<Login/>*/}
+      <SignUp />
       
     </div>
   );
