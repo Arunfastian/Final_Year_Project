@@ -12,14 +12,16 @@ const Port = process.env.PORT || 3001;
 const URL = process.env.DB_URL;
 
 app.use("/User", require("./routes/routes.js"));
-
 mongoose.connect(
   process.env.DB_URL,
   { useNewUrlParser: true, useUnifiedTopology: true },
-  () => {
-    console.log("Connected To DB");
-  }
 );
+   
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "connection error: "));
+db.once("open", function () {
+  console.log("Connected successfully");
+});
 
 app.listen(Port, () => {
   console.log(`Listening On ${Port}`);
